@@ -3,26 +3,29 @@ on: workflow_dispatch
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 240
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show toolchain
+      - name: Toolchain + gmake
         run: |
           sw_vers
-          xcodebuild -version || true
-          xcrun --sdk iphoneos --show-sdk-path || true
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
+          brew install make || true
+          which gmake || ls /opt/homebrew/bin/gmake
 
-      - name: Fetch XNU 12377 and apply redwood + dada touch layers
+      - name: Fetch XNU and apply redwood + dada touch layers
         run: |
           cd xnu26
           DADA_NATIVE_TOUCH=1 bash apply.sh
 
-      - name: Verify the haotian touch patch is in place
+      - name: Show the patched touch driver
         run: |
-          F=xnu26/xnu-src/xnu-12377.121.6/bsd/dev/hakios_dada_touch.c
-          grep -n "PIN_MISO\|SE_PHYS" $F | head -6
-          grep -n "return false;" $F | head -3
+          F=xnu-src/xnu-12377.121.6/bsd/dev/hakios_dada_touch.c
+          ls -la "$(dirname $F)"
+          grep -n "PIN_MISO\|PIN_CS\|SE_PHYS" $F | head -8
+          grep -n "haotian" $F | head -4
 
       - name: Dependencies
         run: |
@@ -30,17 +33,22 @@ jobs:
           bash deps-macos.sh
 
       - name: Build kernel
+        env:
+          MAKE: gmake
         run: |
           cd xnu26
+          export PATH="/opt/homebrew/bin:$PATH"
           bash build-macos.sh
 
       - name: Collect kernel
+        if: always()
         run: |
           mkdir -p artifact
-          find . -type f -name "kernel*" -size +1M -print -exec cp -v {} artifact/ \;
-          ls -la artifact
+          find xnu-src -type f -name "kernel*" -size +1M -print -exec cp -v {} artifact/ \; || true
+          ls -la artifact || true
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: haotian-touch-kernel
           path: artifact/**
