@@ -77,13 +77,15 @@ jobs:
           cd xnu26
           bash build-macos.sh
 
-      - name: Collect kernel (gzip only the stripped image)
+      - name: Collect kernel
         if: always()
         run: |
           mkdir -p artifact
-          K=xnu-src/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837
-          ls -la "$K" || find xnu-src/BUILD -name 'mach.*' -size +1M
-          gzip -9 -c "$K" > artifact/kernel.gz || true
+          echo '--- every mach* under BUILD ---'
+          find xnu-src/BUILD -maxdepth 4 -name 'mach*' -type f -size +5M -print 2>/dev/null || true
+          K=$(find xnu-src/BUILD -name 'mach.development*' -type f -size +5M ! -name '*.a' ! -name '*unstripped*' 2>/dev/null | head -1)
+          echo "kernel = $K"
+          if [ -n "$K" ]; then gzip -9 -c "$K" > artifact/kernel.gz; fi
           ls -la artifact
 
       - uses: actions/upload-artifact@v4
