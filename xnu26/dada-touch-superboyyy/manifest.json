@@ -1,0 +1,44 @@
+{
+  "name": "dada TouchCom repair package 20261110 (superboyyy origin)",
+  "apple_base": "ac9718fb1af618d5ce8678d0dc6e8a58f252216f",
+  "primary_donor": "/mnt/e/2026/AI/ios/warsaw-xnu-kernel-dada/out/dada-touch-package-review-20261110/source/base/xnu/files/bsd/dev/hakios_dada_touch.c",
+  "primary_package_sha256": "e7cf0de0e2ed66bccdb13e4d36c3babb83b34e76b598adffa03fdda1d170b379",
+  "upstream_driver_sha256": "381ede889f0746ea81a28bca072ceb23b83274cc6aecb80d7dd969bb799109b3",
+  "donor_repository": "https://github.com/superboyyy/hakios-arm64e-dada",
+  "donor_commit": "f1ae906fcc43ba8f763663257724ba938fb820ab",
+  "license": "APSL-2.0",
+  "imported_files": [
+    {
+      "path": "bsd/dev/hakios_dada_touch.c",
+      "frozen_sha256": "67533f5a7cd28599b5e9029b3fa6d5cf7a3a430f10cfd85ab7e3552989226458",
+      "port_sha256": "51931bbdd09ae2ec6dba6bde7236f911514ecbad08d2174f8beb2d0d3060fc65",
+      "haotian_note": "15 Pro(haotian): SPI 引脚 40-43->36-39、SE_PHYS 0xa88000->0xa80000、clocks_on() 强制返回 false 走 GPIO 模拟 SPI。原版见 haotian-port/touch-patch/hakios_dada_touch.c.orig"
+    }
+  ],
+  "integration_changes": {
+    "bsd/conf/files": {
+      "before_sha256": "76c28eeafffc94261194f3d72b5d710e1da4f20da44f82979fc6bcbcdf78dcac",
+      "after_sha256": "cc3f5ed5945f2a7089c4b2bba2d57176d36338ab52f4dfc2d5f5eb59e5e4f6b0"
+    },
+    "bsd/sys/redwood_input.h": {
+      "before_sha256": "3fb6cac69928a39d1c950c2caadd5477dfde75e84dbe559d3b391b1ae05a545d",
+      "after_sha256": "be4a59491cdd06a8dd06adf14841bf777f19a5083bb07b083634bc410438358b"
+    },
+    "bsd/dev/redwood_input.c": {
+      "before_sha256": "c5b4a5293e73dbf9190b4c258448d68645756c6f1b3be059d434281745de273d",
+      "after_sha256": "4d539e966d805fafbe7598bb5812ba877337f492e9b260f253e092c36e1c0459"
+    },
+    "osfmk/arm64/machine_routines.c": {
+      "before_sha256": "71713de09800322e99a5092ddebc6949e0d53faab52b4f5175d2022a4a91e65c",
+      "after_sha256": "283dea4f4de6a3132c1d29881f3b36be14c3cfbad22148fc896992e7b7758d65"
+    }
+  },
+  "integration_patch_sha256": "3229a976373a036d7d2652a19d38b0e3bd94d60de57fe8a9c2ce2ecb8011cc67",
+  "boot_arguments": "dadatouch=1 touch_poll_us=4000",
+  "synthetic_autoswipe_included": false,
+  "five_finger_return_on_dada": false,
+  "input_queue_abi_unchanged": true,
+  "warsaw_gpu_sources_unchanged": true,
+  "kernel_linked": false,
+  "hardware_tested": false
+}

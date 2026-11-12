@@ -1,0 +1,77 @@
+--- a/bsd/conf/files
++++ b/bsd/conf/files
+@@ -113,6 +113,7 @@
+ bsd/dev/redwood_threads.c	standard
+ bsd/dev/redwood_virtio_input.c	standard
+ bsd/dev/redwood_goodix.c	standard
++bsd/dev/hakios_dada_touch.c	standard
+ bsd/dev/redwood_buttons.c	standard
+ bsd/dev/redwood_battery.c	standard
+ bsd/dev/redwood_ufs.c	standard
+--- a/bsd/sys/redwood_input.h
++++ b/bsd/sys/redwood_input.h
+@@ -59,6 +59,8 @@
+ bool redwood_platform_is_annibale(void);
+ void redwood_input_init(void);
+ void redwood_virtio_input_init(void);   /* boot-arg virtio_input=1: QEMU's virtio pointer and keyboard */
++void hakios_dada_touch_init(void);
++bool hakios_dada_touch_stop(void);
+ void redwood_goodix_init(void);         /* boot-arg touchscreen=1: the phone's Goodix or FocalTech touch screen */
+ void redwood_buttons_init(void);        /* boot-arg buttons=1: the phone's power and volume keys */
+ void redwood_ufs_init(void);           /* ufs=2 to xnuloader: the phone's storage, read only, through the loader (ufs_shared_pa=) */
+--- a/bsd/dev/redwood_input.c
++++ b/bsd/dev/redwood_input.c
+@@ -169,6 +169,9 @@
+ exit_hold_elapsed(__unused thread_call_param_t p0, __unused thread_call_param_t p1)
+ {
+ 	printf("\n--- %d fingers held on the screen for %d ms: back to the loader ---\n", EXIT_FINGERS, EXIT_HOLD_MS);
++	if (!hakios_dada_touch_stop()) {
++		return;
++	}
+ 	redwood_adreno_stop();
+ 	loader_return();
+ }
+@@ -379,10 +382,21 @@
+ 	if (major < 0 || devfs_make_node(makedev(major, 0), DEVFS_CHAR, UID_ROOT, GID_WHEEL, 0666, "redwood-touch") == NULL) {
+ 		printf("redwood-touch: cannot create the device\n");
+ 	}
+-	exit_call = thread_call_allocate(exit_hold_elapsed, NULL);
++	uint32_t dada_no_return = 0;
++	/* No five-finger return during normal dada use. */
++	PE_parse_boot_argn("dadatouch", &dada_no_return, sizeof(dada_no_return));
++	if (!dada_no_return) {
++		exit_call = thread_call_allocate(exit_hold_elapsed, NULL);
++	}
+ 	redwood_cpufreq_init();
+ 	redwood_virtio_input_init();
+-	redwood_goodix_init();
++	uint32_t dada_tcm = 0;
++	if (PE_parse_boot_argn("dadatouch", &dada_tcm, sizeof(dada_tcm)) && dada_tcm) {
++		/* One physical producer: dada uses Synaptics, never probe Goodix. */
++		hakios_dada_touch_init();
++	} else {
++		redwood_goodix_init();
++	}
+ 	redwood_buttons_init();
+ 	redwood_battery_init();
+ 	redwood_ufs_init();
+--- a/osfmk/arm64/machine_routines.c
++++ b/osfmk/arm64/machine_routines.c
+@@ -910,6 +910,7 @@
+ extern void loader_return(void);
+ extern void redwood_var_save_on_return(void);
+ extern void redwood_adreno_stop(void);
++extern bool hakios_dada_touch_stop(void);
+ extern void redwood_wifi_stop(void);
+ extern void redwood_adsp_stop(void);
+ extern void MiniIOMobileFramebufferPowerOff(void);
+@@ -918,6 +919,9 @@
+ void
+ halt_all_cpus(boolean_t reboot)
+ {
++	if (!hakios_dada_touch_stop()) {
++		panic("dada TouchCom did not quiesce before halt");
++	}
+ 	redwood_var_save_on_return();
+ 	redwood_adreno_stop();
+ 	redwood_wifi_stop();

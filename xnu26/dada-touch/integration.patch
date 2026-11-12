@@ -1,0 +1,54 @@
+--- a/bsd/conf/files
++++ b/bsd/conf/files
+@@ -113,6 +113,8 @@
+ bsd/dev/redwood_threads.c	standard
+ bsd/dev/redwood_virtio_input.c	standard
+ bsd/dev/redwood_goodix.c	standard
++bsd/dev/dada_touch.c	standard
++bsd/dev/dada_touch_tcm.c	standard
+ bsd/dev/redwood_buttons.c	standard
+ bsd/dev/redwood_battery.c	standard
+ bsd/dev/redwood_ufs.c	standard
+--- a/bsd/dev/redwood_input.c
++++ b/bsd/dev/redwood_input.c
+@@ -11,6 +11,7 @@
+ #include <sys/errno.h>
+ #include <sys/proc.h>
+ #include <sys/redwood_input.h>
++#include <sys/dada_touch.h>
+ #include <sys/systm.h>
+ #include <sys/sysctl.h>
+ #include <sys/uio.h>
+@@ -382,7 +383,13 @@
+ 	exit_call = thread_call_allocate(exit_hold_elapsed, NULL);
+ 	redwood_cpufreq_init();
+ 	redwood_virtio_input_init();
+-	redwood_goodix_init();
++	uint32_t dada_mode = 0;
++	if (PE_parse_boot_argn("dada_touch", &dada_mode, sizeof(dada_mode)) && dada_mode) {
++		/* Select one physical controller; never probe Goodix on TouchCom. */
++		dada_touch_init();
++	} else {
++		redwood_goodix_init();
++	}
+ 	redwood_buttons_init();
+ 	redwood_battery_init();
+ 	redwood_ufs_init();
+--- a/osfmk/arm64/machine_routines.c
++++ b/osfmk/arm64/machine_routines.c
+@@ -910,6 +910,7 @@
+ extern void loader_return(void);
+ extern void redwood_var_save_on_return(void);
+ extern void redwood_adreno_stop(void);
++extern void dada_touch_stop(void);
+ extern void redwood_wifi_stop(void);
+ extern void redwood_adsp_stop(void);
+ extern void MiniIOMobileFramebufferPowerOff(void);
+@@ -918,6 +919,7 @@
+ void
+ halt_all_cpus(boolean_t reboot)
+ {
++	dada_touch_stop();
+ 	redwood_var_save_on_return();
+ 	redwood_adreno_stop();
+ 	redwood_wifi_stop();

@@ -1,0 +1,47 @@
+name: build-haotian-touch-kernel
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          xcodebuild -version || true
+          xcrun --sdk iphoneos --show-sdk-path || true
+
+      - name: Fetch XNU 12377 and apply redwood + dada touch layers
+        run: |
+          cd xnu26
+          DADA_NATIVE_TOUCH=1 bash apply.sh
+
+      - name: Verify the haotian touch patch is in place
+        run: |
+          F=xnu26/xnu-src/xnu-12377.121.6/bsd/dev/hakios_dada_touch.c
+          grep -n "PIN_MISO\|SE_PHYS" $F | head -6
+          grep -n "return false;" $F | head -3
+
+      - name: Dependencies
+        run: |
+          cd xnu26
+          bash deps-macos.sh
+
+      - name: Build kernel
+        run: |
+          cd xnu26
+          bash build-macos.sh
+
+      - name: Collect kernel
+        run: |
+          mkdir -p artifact
+          find . -type f -name "kernel*" -size +1M -print -exec cp -v {} artifact/ \;
+          ls -la artifact
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: haotian-touch-kernel
+          path: artifact/**
+          if-no-files-found: warn

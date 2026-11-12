@@ -1,0 +1,13 @@
+diff --git a/bsd/conf/files b/bsd/conf/files
+--- a/bsd/conf/files
++++ b/bsd/conf/files
+@@ -139,5 +139,9 @@
+ bsd/dev/adreno8_zap.c	standard
+ bsd/dev/adreno8_secure.c	standard
+ bsd/dev/redwood_audio.c		standard
++bsd/dev/annibale_audio_amp.c	standard
++bsd/dev/annibale_audio_reach.c	standard
++bsd/dev/annibale_camera.c	standard
++bsd/dev/annibale_iris.c		standard
+ bsd/dev/redwood_virtio_sound.c	standard
+ bsd/dev/redwood_speaker.c	standard

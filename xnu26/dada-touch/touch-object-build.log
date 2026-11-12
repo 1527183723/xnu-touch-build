@@ -1,0 +1,4 @@
+make: Entering directory '/home/LZY/warsaw-dada-touch-r3-20261110/xnu12377/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/bsd/DEVELOPMENT'
+             CC dada_touch.o
+             CC dada_touch_tcm.o
+make: Leaving directory '/home/LZY/warsaw-dada-touch-r3-20261110/xnu12377/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/bsd/DEVELOPMENT'

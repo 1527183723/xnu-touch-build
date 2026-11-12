@@ -1,0 +1,158 @@
+{
+  "apple_base": "ac9718fb1af618d5ce8678d0dc6e8a58f252216f",
+  "warsaw_patches": [
+    "01-Makefile.patch",
+    "02-SETUP%config%doconf.patch",
+    "03-bsd%conf%Makefile.arm64.patch",
+    "04-bsd%conf%files.patch",
+    "05-bsd%dev%arm%km.c.patch",
+    "06-bsd%dev%arm%systemcalls.c.patch",
+    "07-bsd%dev%memdev.c.patch",
+    "08-bsd%kern%bsd_init.c.patch",
+    "09-bsd%kern%kern_exec.c.patch",
+    "10-bsd%kern%kern_memorystatus.c.patch",
+    "11-bsd%kern%kern_memorystatus_internal.h.patch",
+    "12-bsd%kern%kern_priv.c.patch",
+    "13-bsd%kern%kern_sig.c.patch",
+    "14-bsd%kern%sys_work_interval.c.patch",
+    "15-bsd%miscfs%bindfs%bind_vfsops.c.patch",
+    "16-bsd%miscfs%devfs%devfs_vfsops.c.patch",
+    "17-bsd%miscfs%mockfs%mockfs.h.patch",
+    "18-bsd%miscfs%mockfs%mockfs_fsnode.c.patch",
+    "19-bsd%sys%disk_private.h.patch",
+    "20-bsd%vfs%vfs_conf.c.patch",
+    "21-bsd%vm%vm_unix.c.patch",
+    "22-config%MASTER.patch",
+    "23-iokit%Kernel%IOPMrootDomain.cpp.patch",
+    "24-iokit%Kernel%IOPlatformExpert.cpp.patch",
+    "25-iokit%Kernel%IOService.cpp.patch",
+    "26-iokit%Kernel%IOStartIOKit.cpp.patch",
+    "27-iokit%Kernel%IOUserClient.cpp.patch",
+    "28-iokit%KernelConfigTables.cpp.patch",
+    "29-iokit%bsddev%IOKitBSDInit.cpp.patch",
+    "30-iokit%conf%files.patch",
+    "31-libkern%conf%files.patch",
+    "31a-libkern%c++%OSKext.cpp.patch",
+    "32-makedefs%MakeInc.cmd.patch",
+    "33-makedefs%MakeInc.def.patch",
+    "34-makedefs%MakeInc.top.patch",
+    "35-osfmk%arm%arm_init.c.patch",
+    "36-osfmk%arm%cpuid.c.patch",
+    "37-osfmk%arm%model_dep.c.patch",
+    "38-osfmk%arm%pmap%pmap.c.patch",
+    "39-osfmk%arm%pmap%pmap.h.patch",
+    "40-osfmk%arm64%corecrypto%arm64_isa_compatibility.h.patch",
+    "41-osfmk%arm64%cpu.c.patch",
+    "42-osfmk%arm64%machine_routines.c.patch",
+    "43-osfmk%arm64%proc_reg.h.patch",
+    "44-osfmk%arm64%sleh.c.patch",
+    "45-osfmk%arm64%start.s.patch",
+    "46-osfmk%conf%files.patch",
+    "47-osfmk%conf%files.arm64.patch",
+    "48-osfmk%console%serial_console.c.patch",
+    "48a-osfmk%console%serial_general.c.patch",
+    "49-osfmk%console%video_console.c.patch",
+    "50-osfmk%console%video_scroll.c.patch",
+    "51-osfmk%kern%cpu_number.h.patch",
+    "52-osfmk%kern%debug.c.patch",
+    "53-osfmk%kern%exception.c.patch",
+    "54-osfmk%kern%kalloc.h.patch",
+    "55-osfmk%kern%percpu.h.patch",
+    "56-osfmk%kern%startup.c.patch",
+    "57-osfmk%kern%thread.c.patch",
+    "58-osfmk%kern%work_interval.c.patch",
+    "59-osfmk%kern%work_interval.h.patch",
+    "60-osfmk%kern%zalloc.c.patch",
+    "61-osfmk%prng%prng_random.c.patch",
+    "62-osfmk%vm%vm_compressor.c.patch",
+    "63-osfmk%vm%vm_dyld_pager.c.patch",
+    "64-osfmk%vm%vm_kern.h.patch",
+    "65-osfmk%vm%vm_pageout.c.patch",
+    "66-osfmk%vm%vm_shared_region.c.patch",
+    "67-pexpert%arm%pe_fiq.c.patch",
+    "68-pexpert%arm%pe_kprintf.c.patch",
+    "69-pexpert%gen%device_tree.c.patch",
+    "70-pexpert%pexpert%arm64%Makefile.patch",
+    "71-pexpert%pexpert%arm64%board_config.h.patch",
+    "72-osfmk%ipc%mach_port.c.patch",
+    "73-san%memory%ubsan_minimal.c.patch",
+    "74-osfmk%vm%vm_memory_entry.c.patch",
+    "75-osfmk%vm%vm_map_store.c.patch",
+    "78-bsd-conf-files-annibale-av.patch"
+  ],
+  "donor_frozen": "/mnt/e/2026/AI/ios/dada-v16-usb-metal1-input-port/out/r11-stock-framing",
+  "imported_files": [
+    {
+      "path": "bsd/dev/dada_touch.c",
+      "frozen_sha256": "798f946b94360437982d1f77dde1606ae91454f19d8b4edf9539c3318c54bd87",
+      "port_sha256": "34a3ab2586427ff581986be190b55ec9825627068673010a43b1168a66ae7952"
+    },
+    {
+      "path": "bsd/dev/dada_touch_tcm.c",
+      "frozen_sha256": "f10e57b3e5d73d9221400f349ca1fcd3b3c207dac407b8e02f37b278d67c1fd8",
+      "port_sha256": "f10e57b3e5d73d9221400f349ca1fcd3b3c207dac407b8e02f37b278d67c1fd8"
+    },
+    {
+      "path": "bsd/sys/dada_touch.h",
+      "frozen_sha256": "5e7feedc27483b9a3a6f81266727f7dd301ce29bd8631ca41a98df19d9947466",
+      "port_sha256": "5e7feedc27483b9a3a6f81266727f7dd301ce29bd8631ca41a98df19d9947466"
+    },
+    {
+      "path": "bsd/sys/dada_input_board.h",
+      "frozen_sha256": "643752c54b977373897a4c9ff1ab4dac4d7fb457ed01e62db48037ba0583209d",
+      "port_sha256": "643752c54b977373897a4c9ff1ab4dac4d7fb457ed01e62db48037ba0583209d"
+    },
+    {
+      "path": "bsd/sys/dada_power_probe.h",
+      "frozen_sha256": "fc3a3d88c2caffaa25bdb9c2a2de5c2bf84c99dc938fd62fbe1e4a8698297b9e",
+      "port_sha256": "fc3a3d88c2caffaa25bdb9c2a2de5c2bf84c99dc938fd62fbe1e4a8698297b9e"
+    },
+    {
+      "path": "bsd/sys/dada_rpmh_vote.h",
+      "frozen_sha256": "36ff6fff3529f0a4c435f028ebda4b5b3d6094b1e9eb9cd1c566710b416a85c9",
+      "port_sha256": "36ff6fff3529f0a4c435f028ebda4b5b3d6094b1e9eb9cd1c566710b416a85c9"
+    },
+    {
+      "path": "bsd/sys/dada_spi_wire.h",
+      "frozen_sha256": "9d04c51bca4615f84edbd4e5a2b2cb4886965ae99aa55da3647ee5ee7ca0f3d9",
+      "port_sha256": "9d04c51bca4615f84edbd4e5a2b2cb4886965ae99aa55da3647ee5ee7ca0f3d9"
+    },
+    {
+      "path": "bsd/sys/dada_touch_power_r6.h",
+      "frozen_sha256": "4d8c5ca05c6a90a90cdb3dd99e8dd66cf1cdecc70061e574e40e40a75ffb707a",
+      "port_sha256": "4d8c5ca05c6a90a90cdb3dd99e8dd66cf1cdecc70061e574e40e40a75ffb707a"
+    }
+  ],
+  "integration_changes": {
+    "bsd/conf/files": {
+      "before_sha256": "76c28eeafffc94261194f3d72b5d710e1da4f20da44f82979fc6bcbcdf78dcac",
+      "after_sha256": "6fa878ec7b2b764c460d1d264ffba600bd7dfdf8451901863d6d29649dd14e09"
+    },
+    "bsd/dev/redwood_input.c": {
+      "before_sha256": "c5b4a5293e73dbf9190b4c258448d68645756c6f1b3be059d434281745de273d",
+      "after_sha256": "0dc9c8a4c8fa3d2e9e3feda7f663e57fdbb624e4cea3d4e22882879b6f959a70"
+    },
+    "osfmk/arm64/machine_routines.c": {
+      "before_sha256": "71713de09800322e99a5092ddebc6949e0d53faab52b4f5175d2022a4a91e65c",
+      "after_sha256": "14a840a1e84c2ef241459dace52ca5c6fc11739b7956b469d8c273d3f973c8f8"
+    }
+  },
+  "native_mode": 4,
+  "uefi_ring_mode_included": false,
+  "input_queue_abi_unchanged": true,
+  "ios26_hid_service_unchanged": true,
+  "warsaw_gpu_sources_unchanged": true,
+  "tests": [
+    "test_input",
+    "test_touch_reports_r7",
+    "test_touch_config_r9",
+    "test_touch_framing_r11",
+    "test_multitouch_r11"
+  ],
+  "hardware_tested_with_xnu26": false,
+  "integration_patch_sha256": "e0c6c60d36cd4b7982c645f24d8cfb78262cebfefa450665d525a7073e52cf49",
+  "compiled_objects_only": true,
+  "kernel_linked": false,
+  "compile_sdk_limitation": "Cached 16.5 SDK; current XNU12377 headers; not a release kernel",
+  "boot_arguments": "dada_touch=4 dada_touch_mmio=1 dada_touch_power=1 dada_touch_reset=1"
+}

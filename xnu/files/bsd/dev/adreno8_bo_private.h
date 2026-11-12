@@ -1,0 +1,35 @@
+/* External physical BO pages in the existing non-secure GPU address space. */
+#ifndef _DEV_ADRENO8_BO_PRIVATE_H
+#define _DEV_ADRENO8_BO_PRIVATE_H
+#include "adreno8_memory_private.h"
+
+/* Stage 23 explicitly enables this path after the standard context self-test.
+ * The caller serializes these operations with every GPU submission. */
+bool adreno8_bo_enable(void);
+bool adreno8_bo_ready(void);
+/* Close all BO admission without releasing pages or IOVAs. */
+void adreno8_bo_stop(void);
+uint64_t adreno8_bo_reserve(uint64_t size);
+/* The existing GEM interface identifies only read-only versus writable BOs.
+ * Mesa uses it for shader, IB and data pages; all retain READ/EXEC permission. */
+bool adreno8_bo_map(uint64_t address, uint64_t phys, bool read_only);
+bool adreno8_bo_commit(void);
+/* Use the address returned by reserve and the original requested size. Unmap confirms latest
+ * EOP, GPU idle and TLB completion; only then may the caller release its pages.
+ * Release returns the unmapped IOVA to the same page-table occupancy record.
+ * Failures after enable close subsequent BO operations; any existing reservation,
+ * mapping and backing pages remain owned until cold reset. */
+bool adreno8_bo_unmap(uint64_t address, uint64_t size);
+bool adreno8_bo_release(uint64_t address, uint64_t size);
+/* Print `count` dwords from GPU address `address` through the CB0 page table, for a hang report.
+ * Pages that are not mapped are named, not read. */
+void adreno8_bo_dump_words(const char *what, uint64_t address, uint32_t count);
+/* Print the command buffer at `base`, `count` dwords, and the IBs and draw-state groups it names,
+ * three levels down; then the fragment stage's bindless descriptors in Mesa's fb-read slots. Once
+ * per boot, for a hang report. */
+void adreno8_bo_dump_tree(uint64_t base, uint32_t count);
+/* After an SMMU fault in the GPU space, once per boot: the BOs that held the faulting address
+ * in the last reservations, live or released, and the nearest live ones below and above it. */
+void adreno8_bo_describe_fault(uint32_t fault);
+
+#endif

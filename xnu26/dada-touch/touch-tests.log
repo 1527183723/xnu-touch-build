@@ -1,0 +1,5 @@
+dada input port: 38 checks passed
+dada r7 vendor report continuation: 27 checks passed
+dada r9 stock report configuration: 34 checks passed
+dada r11 stock startup/CRC framing: 2271 checks passed
+dada r11 ten-finger/glove/palm/release: 23 checks passed

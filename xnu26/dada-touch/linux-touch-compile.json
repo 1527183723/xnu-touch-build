@@ -1,0 +1,40 @@
+{
+  "headers_and_objects_compiled": true,
+  "kernel_linked": false,
+  "cached_sdk_for_compile_check_only": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk",
+  "private_headers": [
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/TrustCache/RawTypes.h",
+      "sha256": "03e945ba48a3b3400012d42fc1b97fb70bc59835985c2921e8173369e40301bf"
+    },
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/TrustCache/Return.h",
+      "sha256": "d15cae97bb0c7cfa690b6ffa71805c7aa0c774e7c0bd23095d6684f564674b44"
+    },
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/TrustCache/Types.h",
+      "sha256": "68f179189fb0f5e37f6898c8a0daa80e44b4a05c5a7834e4ae68e05f1ef99c4a"
+    },
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/TrustCache/TypesConfig.h",
+      "sha256": "bb46daeff6efe7a7bc701741cbc73690b3ee5036aeac7096cbf269b751f0d1d3"
+    },
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/TrustCache/API.h",
+      "sha256": "a8e2994a5b6ec61e3aaab6516d82041f629322a76bb4ee1339a172aaea14417a"
+    },
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/CodeSignature/Entitlements.h",
+      "sha256": "91e483a4dd4ed3a4c1edd3d2128d715b6668212bd9c184eec7e77ab6eeea0127"
+    },
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/CoreEntitlements/V2/Kernel.h",
+      "sha256": "a31605716b74a287190083fcbbf68ac1c4e5c5ff44aefb75d858047aeb694e16"
+    },
+    {
+      "path": "/home/LZY/warsaw-dada-touch-r3-20261110/deps/sdk/usr/local/include/kernel/CoreEntitlements/V2/API.h",
+      "sha256": "75015f8bb88ae99cb68f98caa436aa5ee09cd3fc88adaf2777211c95a69abe43"
+    }
+  ],
+  "hardware_tested": false
+}

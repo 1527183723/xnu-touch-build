@@ -1,0 +1,18 @@
+{
+  "kernel_linked": false,
+  "hardware_tested": false,
+  "objects": {
+    "dada_touch.o": {
+      "bytes": 115064,
+      "cpu_type": "0x100000c",
+      "cpu_subtype": 0,
+      "sha256": "08ec01b41e7b5deaa99d6f38cd829f05e14713e03976b2775ca06ead33d48118"
+    },
+    "dada_touch_tcm.o": {
+      "bytes": 32376,
+      "cpu_type": "0x100000c",
+      "cpu_subtype": 0,
+      "sha256": "de3d9b9b04b937145082708be532710ab08f911002b4a07a3716c914d07d794f"
+    }
+  }
+}
