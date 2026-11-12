@@ -10,32 +10,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Toolchain + helpers
+      - name: Toolchain and helpers
         run: |
           sw_vers
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-path
           brew install make coreutils || true
           mkdir -p "$RUNNER_TEMP/bin"
-          printf '#!/bin/sh
-sysctl -n hw.ncpu
-' > "$RUNNER_TEMP/bin/nproc"
+          echo '#!/bin/sh' > "$RUNNER_TEMP/bin/nproc"
+          echo 'sysctl -n hw.ncpu' >> "$RUNNER_TEMP/bin/nproc"
           chmod +x "$RUNNER_TEMP/bin/nproc"
-          echo "$RUNNER_TEMP/bin" >> $GITHUB_PATH
-          echo "/opt/homebrew/bin" >> $GITHUB_PATH
-          which gmake || true
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
+          which gmake
 
-      - name: Fetch XNU + redwood + superboyyy touch layer
+      - name: Fetch XNU and superboyyy touch layer
         run: |
           cd xnu26
           DADA_NATIVE_TOUCH=superboyyy bash apply.sh
 
-      - name: Show the patched touch driver
+      - name: Show patched touch driver
         run: |
           F=xnu-src/xnu-12377.121.6/bsd/dev/hakios_dada_touch.c
           ls -la "$F"
-          grep -n "PIN_MISO\|PIN_CS\|SE_PHYS" "$F" | head -8
-          grep -n "haotian" "$F" | head -4
+          grep -n 'PIN_MISO' "$F" | head -3
+          grep -n 'SE_PHYS' "$F" | head -3
+          grep -n 'haotian' "$F" | head -4
 
       - name: Dependencies
         run: |
@@ -53,7 +53,7 @@ sysctl -n hw.ncpu
         if: always()
         run: |
           mkdir -p artifact
-          find xnu-src -type f -name "kernel*" -size +1M -print -exec cp -v {} artifact/ \; || true
+          find xnu-src -type f -name 'kernel*' -size +1M -print -exec cp -v {} artifact/ \; || true
           ls -la artifact || true
 
       - uses: actions/upload-artifact@v4
