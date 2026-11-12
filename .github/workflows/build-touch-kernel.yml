@@ -49,6 +49,14 @@ jobs:
           cd xnu26
           bash build-macos.sh exporthdrs installhdrs
 
+      - name: Seed TargetConditionals.h for stage 2
+        run: |
+          mkdir -p xnu-deps/build/pthread/inc
+          S1="$(xcrun --sdk macosx --show-sdk-path)/usr/include/TargetConditionals.h"
+          S2="$(xcrun --sdk iphoneos --show-sdk-path)/usr/include/TargetConditionals.h"
+          cp "$S1" xnu-deps/build/pthread/inc/ 2>/dev/null || cp "$S2" xnu-deps/build/pthread/inc/
+          ls -la xnu-deps/build/pthread/inc/
+
       - name: Dependencies stage 2 (libfirehose_kernel, libpthread_kext)
         run: |
           cd xnu26
