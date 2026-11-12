@@ -81,16 +81,16 @@ jobs:
         if: always()
         run: |
           mkdir -p artifact
-          echo '--- every mach* under BUILD ---'
-          find xnu-src/BUILD -maxdepth 4 -name 'mach*' -type f -size +5M -print 2>/dev/null || true
-          K=$(find xnu-src/BUILD -name 'mach.development*' -type f -size +5M ! -name '*.a' ! -name '*unstripped*' 2>/dev/null | head -1)
-          echo "kernel = $K"
-          if [ -n "$K" ]; then gzip -9 -c "$K" > artifact/kernel.gz; fi
+          set -x
+          ls -la xnu-src/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/ || true
+          cp -v xnu-src/BUILD/obj/DEVELOPMENT_ARM64_BCM2837/mach.development.bcm2837 artifact/mach.development.bcm2837 || true
+          find xnu-src -type f -name 'mach.development.bcm2837' -size +5M -exec cp -v {} artifact/ \; || true
+          set +x
           ls -la artifact
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: haotian-touch-kernel
+          name: mach-kernel
           path: artifact/**
           if-no-files-found: warn
