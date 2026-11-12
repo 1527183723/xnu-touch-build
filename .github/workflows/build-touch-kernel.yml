@@ -7,25 +7,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Toolchain + gmake
+      - name: Toolchain + helpers
         run: |
           sw_vers
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-path
-          brew install make || true
-          which gmake || ls /opt/homebrew/bin/gmake
+          brew install make coreutils || true
+          mkdir -p "$RUNNER_TEMP/bin"
+          printf '#!/bin/sh
+sysctl -n hw.ncpu
+' > "$RUNNER_TEMP/bin/nproc"
+          chmod +x "$RUNNER_TEMP/bin/nproc"
+          echo "$RUNNER_TEMP/bin" >> $GITHUB_PATH
+          echo "/opt/homebrew/bin" >> $GITHUB_PATH
+          which gmake || true
 
-      - name: Fetch XNU and apply redwood + dada touch layers
+      - name: Fetch XNU + redwood + superboyyy touch layer
         run: |
           cd xnu26
-          DADA_NATIVE_TOUCH=1 bash apply.sh
+          DADA_NATIVE_TOUCH=superboyyy bash apply.sh
 
       - name: Show the patched touch driver
         run: |
           F=xnu-src/xnu-12377.121.6/bsd/dev/hakios_dada_touch.c
-          ls -la "$(dirname $F)"
-          grep -n "PIN_MISO\|PIN_CS\|SE_PHYS" $F | head -8
-          grep -n "haotian" $F | head -4
+          ls -la "$F"
+          grep -n "PIN_MISO\|PIN_CS\|SE_PHYS" "$F" | head -8
+          grep -n "haotian" "$F" | head -4
 
       - name: Dependencies
         run: |
@@ -37,7 +44,6 @@ jobs:
           MAKE: gmake
         run: |
           cd xnu26
-          export PATH="/opt/homebrew/bin:$PATH"
           bash build-macos.sh
 
       - name: Collect kernel
