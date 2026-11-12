@@ -42,6 +42,18 @@ jobs:
           cd xnu26
           bash deps-macos.sh
 
+      - name: Export headers (needed by deps stage 2)
+        env:
+          MAKE: /usr/bin/make
+        run: |
+          cd xnu26
+          bash build-macos.sh exporthdrs installhdrs
+
+      - name: Dependencies stage 2 (libfirehose_kernel, libpthread_kext)
+        run: |
+          cd xnu26
+          bash deps-macos.sh
+
       - name: Build kernel
         env:
           MAKE: /usr/bin/make
