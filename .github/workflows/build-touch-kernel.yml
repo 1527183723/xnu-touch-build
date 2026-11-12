@@ -5,7 +5,7 @@ on:
     branches: [main]
 jobs:
   build:
-    runs-on: macos-26
+    runs-on: macos-15
     timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +23,14 @@ jobs:
           echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
           echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
           /usr/bin/make --version | head -1
+
+      - name: Select the newest Xcode available
+        run: |
+          ls -d /Applications/Xcode*.app 2>/dev/null || true
+          LATEST="$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)"
+          if [ -n "$LATEST" ]; then sudo xcode-select -s "$LATEST"; fi
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
 
       - name: Fetch XNU and superboyyy touch layer
         run: |
