@@ -73,7 +73,8 @@ jobs:
         if: always()
         run: |
           mkdir -p artifact
-          find xnu-src -type f -name 'kernel*' -size +1M -print -exec cp -v {} artifact/ \; || true
+          find xnu-src -type f \( -name 'mach.*' -o -name 'kernel*' \) -size +1M -print -exec cp -v {} artifact/ \; || true
+          find xnu-src/BUILD -maxdepth 3 -type f -size +1M -print -exec cp -v {} artifact/ \; || true
           ls -la artifact || true
 
       - uses: actions/upload-artifact@v4
