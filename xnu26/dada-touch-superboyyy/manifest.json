@@ -11,7 +11,7 @@
     {
       "path": "bsd/dev/hakios_dada_touch.c",
       "frozen_sha256": "67533f5a7cd28599b5e9029b3fa6d5cf7a3a430f10cfd85ab7e3552989226458",
-      "port_sha256": "51931bbdd09ae2ec6dba6bde7236f911514ecbad08d2174f8beb2d0d3060fc65",
+      "port_sha256": "de9f5c902cd9faab5395b91ec978ec8bd207cc1b8449d49bcafcfc2f4edb998d",
       "haotian_note": "15 Pro(haotian): SPI 引脚 40-43->36-39、SE_PHYS 0xa88000->0xa80000、clocks_on() 强制返回 false 走 GPIO 模拟 SPI。原版见 haotian-port/touch-patch/hakios_dada_touch.c.orig"
     }
   ],
