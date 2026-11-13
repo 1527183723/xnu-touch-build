@@ -119,7 +119,7 @@ sleep_ms(uint32_t ms)
 #endif
 #define PIN_RESET               161     /* low = in reset */
 #define PIN_INT                 162     /* low = the chip has a message */
-#define PIN_FUNCTION_SPI        1       /* mux value used by the qup1_se*_l* groups */
+#define PIN_FUNCTION_SPI        1       /* PINGROUP(32..35, qup1_se0, ...) -> mux 1 (pinctrl-sm8750.c) */
 
 static void
 gpio_configure(unsigned pin, unsigned function, unsigned pull, unsigned ma, bool output)
@@ -364,11 +364,11 @@ static bool
 clocks_on(void)
 {
 	/*
-	 * haotian（小米 15 Pro）：触摸从 QUP1_SE2 搬到了 SE1（DT 时钟 ID 0x5c -> 0x58），
+	 * haotian（小米 15 Pro）：触摸从 QUP1_SE2 搬到了 SE0（DT 时钟 ID 0x5c -> 0x58），
 	 * 这里的 S2 时钟寄存器不再是它的。实测：让它通过 -> 去读 GENI/SE 寄存器 ->
 	 * 内核十几秒后整机停死（USB 全断，只能长按电源 15 秒断电）。
 	 * 所以直接返回 false，逼调用方走下面的 GPIO 模拟 SPI 路径（dada 本来也走这条）。
-	 * 等把 S1 的 GCC 偏移核准了，删掉这一行就能走硬件 SPI。
+	 * 等把 S0 的 GCC 偏移核准了，删掉这一行就能走硬件 SPI。
 	 */
 	return false;
 	uint32_t post = (rd(GCC_QUP1_S2_DIV) & 0xf) + 1;
@@ -736,7 +736,11 @@ static bool (*spi_transfer)(const uint8_t *tx, uint8_t *rx, uint32_t length) = g
 
 static uint8_t message[TCM_MAX_PAYLOAD + 8];
 static uint8_t touch_config[256];
+#if HAOTIAN_PORT
+static uint32_t touch_config_size, max_x = 1440, max_y = 3200, max_objects = MAX_OBJECTS;
+#else
 static uint32_t touch_config_size, max_x = 1200, max_y = 2670, max_objects = MAX_OBJECTS;
+#endif
 static struct {
 	unsigned polls, messages, touch_reports, bad, other, touches, resyncs;
 	uint32_t last_x, last_y;
@@ -1072,8 +1076,13 @@ tcm_probe(void)
 			max_objects = MAX_OBJECTS;
 		}
 		if (max_x == 0 || max_y == 0) {
+#if HAOTIAN_PORT
+			max_x = 1440;
+			max_y = 3200;
+#else
 			max_x = 1200;
 			max_y = 2670;
+#endif
 		}
 	}
 	if (!tcm_command(CMD_GET_TOUCH_REPORT_CONFIG, NULL, 0, &length) || length == 0 || length > sizeof(touch_config)) {
