@@ -1495,7 +1495,14 @@ careful_look(void)
 		uint32_t offset;
 	} steps[] = {
 		{ "TLMM MISO cfg", &tlmm, 0x1000 * PIN_MISO },
+		{ "TLMM MOSI cfg", &tlmm, 0x1000 * PIN_MOSI },
+		{ "TLMM CLK cfg", &tlmm, 0x1000 * PIN_CLK },
+		{ "TLMM CS cfg", &tlmm, 0x1000 * PIN_CS },
+		{ "TLMM AVDD gpio114 cfg", &tlmm, 0x1000 * PIN_TOUCH_AVDD },
+		{ "TLMM AVDD gpio114 io", &tlmm, 0x1000 * PIN_TOUCH_AVDD + 4 },
 		{ "TLMM reset cfg", &tlmm, 0x1000 * PIN_RESET },
+		{ "TLMM reset io", &tlmm, 0x1000 * PIN_RESET + 4 },
+		{ "TLMM interrupt cfg", &tlmm, 0x1000 * PIN_INT },
 		{ "TLMM interrupt io", &tlmm, 0x1000 * PIN_INT + 4 },
 		{ "GCC vote 0x52008", &gcc, 0x52008 },
 		{ "GCC m_ahb 0x23140", &gcc, 0x23140 },
