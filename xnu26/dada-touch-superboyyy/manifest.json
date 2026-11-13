@@ -11,8 +11,8 @@
     {
       "path": "bsd/dev/hakios_dada_touch.c",
       "frozen_sha256": "67533f5a7cd28599b5e9029b3fa6d5cf7a3a430f10cfd85ab7e3552989226458",
-      "port_sha256": "de9f5c902cd9faab5395b91ec978ec8bd207cc1b8449d49bcafcfc2f4edb998d",
-      "haotian_note": "15 Pro(haotian): SPI 引脚 40-43->36-39、SE_PHYS 0xa88000->0xa80000、clocks_on() 强制返回 false 走 GPIO 模拟 SPI。原版见 haotian-port/touch-patch/hakios_dada_touch.c.orig"
+      "port_sha256": "e67f963ece37050a4ae62946d3a90dc0b6bb332517a76b8f41f9b2bcca058c3d",
+      "haotian_note": "15 Pro(haotian): SPI 引脚 40-43->32-35（qup1_se0_l0..l3，spi@a80000）、SE_PHYS 0xa88000->0xa80000、clocks_on() 强制返回 false 走 GPIO 模拟 SPI、AVDD 改为 gpio114 的 touch_avdd_vreg。旧版误用了 gpio36-39（qcom,gpios-reserved，读取即整机停）。"
     }
   ],
   "integration_changes": {

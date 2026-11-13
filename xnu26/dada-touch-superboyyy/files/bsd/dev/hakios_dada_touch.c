@@ -1,15 +1,16 @@
 /*
- * The touch screen of the Xiaomi 15 (dada, SM8750): a Synaptics TouchComm ("TCM") controller on
- * the SPI bus of serial engine 2 of the second QUP wrapper, as a source of touches for
+ * The touch screen of the Xiaomi 15 Pro (haotian, SM8750): a Synaptics TouchComm ("TCM")
+ * controller on the SPI bus of serial engine 0 of the second QUP wrapper, as a source of touches for
  * /dev/redwood-touch (sys/redwood_input.h). Only with boot-arg dadatouch=1: every address below
  * belongs to this phone (its own device tree, Android's).
  *
  * As redwood_goodix.c does for the POCO X5 Pro, the driver does everything itself:
- *   power    iovdd 1.8 V from LDO12 of PMIC B ("ldob12"), avdd 3.0 V from LDO16 ("ldob16"),
- *            through RPMh (the application processor's DRV 2, RSC version 3 register layout)
+ *   power    iovdd 1.8 V from LDO12 of PMIC B ("ldob12") through RPMh (the application
+ *            processor's DRV 2, RSC version 3 register layout); avdd is a fixed regulator
+ *            switched by gpio114 on haotian (dada takes 3.0 V from LDO16 "ldob16")
  *   clocks   the wrapper's AHB and core clocks and the engine's clock, by vote in GCC; the
  *            engine's rate comes from the wrapper's "QSPI reference" clock generator
- *   pins     gpio40..43 to the engine (MISO, MOSI, CLK, CS), gpio161 reset, gpio162 interrupt
+ *   pins     gpio32..35 to the engine (MISO, MOSI, CLK, CS), gpio161 reset, gpio162 interrupt
  *            (low while the controller has a message)
  *   SPI      the engine ("GENI") in FIFO mode, polled
  *   chip     TouchComm: every read is a message -- 0xa5, a status or report code, a 16-bit length,
@@ -47,6 +48,10 @@ extern vm_offset_t ml_io_map_wcomb(vm_offset_t phys_addr, vm_size_t size);
 extern kern_return_t thread_terminate(thread_t thread);
 
 #define say(...) redwood_tl("dtouch: " __VA_ARGS__)
+
+/* This copy is the Xiaomi 15 Pro (haotian) port.  The original dada constants stay below
+ * behind HAOTIAN_PORT so it is still visible what was changed and why. */
+#define HAOTIAN_PORT 1
 
 static vm_offset_t tlmm, gcc, se, rsc, cmd_db;
 static uint32_t stopping, running, started;
@@ -97,13 +102,24 @@ sleep_ms(uint32_t ms)
 #define PULL_DOWN               1
 #define PULL_UP                 3
 
-#define PIN_MISO                36      /* haotian: 15 Pro 的 qup1_se1_l0（dada 是 40） */
-#define PIN_MOSI                37      /* haotian: qup1_se1_l1 */
-#define PIN_CLK                 38      /* haotian: qup1_se1_l2 */
-#define PIN_CS                  39      /* haotian: qup1_se1_l3 */
+#if HAOTIAN_PORT
+/* haotian: spi@a80000 is QUP1_SE0 and its four pins are gpio32..35 (qup1_se0_l0..l3).
+ * The earlier port used gpio36..39 (qup1_se1), which are listed in qcom,gpios-reserved
+ * and are not readable from this VM: the first TLMM read stopped the whole phone. */
+#define PIN_MISO                32      /* qup1_se0_l0 */
+#define PIN_MOSI                33      /* qup1_se0_l1 */
+#define PIN_CLK                 34      /* qup1_se0_l2 */
+#define PIN_CS                  35      /* qup1_se0_l3 */
+#define PIN_TOUCH_AVDD          114     /* touch_avdd_vreg: gpio114, active high */
+#else
+#define PIN_MISO                40
+#define PIN_MOSI                41
+#define PIN_CLK                 42
+#define PIN_CS                  43
+#endif
 #define PIN_RESET               161     /* low = in reset */
 #define PIN_INT                 162     /* low = the chip has a message */
-#define PIN_FUNCTION_SPI        1       /* "qup1_se2" */
+#define PIN_FUNCTION_SPI        1       /* mux value used by the qup1_se*_l* groups */
 
 static void
 gpio_configure(unsigned pin, unsigned function, unsigned pull, unsigned ma, bool output)
@@ -288,7 +304,14 @@ supplies_on(void)
 	say("RPMh: RSC id %#x (version %u); slot status %#x control %#x\n", id, major, rd(TCS(tcs_reg.status)),
 	    rd(TCS(tcs_reg.control)));
 	ldo_on("ldob12", 1800);         /* iovdd */
+#if HAOTIAN_PORT
+	/* haotian's touch_avdd_vreg is a fixed regulator enabled by gpio114, not LDO16; on
+	 * haotian LDO16 feeds the camera VAF rail (2.8 V), so leave it alone. */
+	gpio_output(PIN_TOUCH_AVDD, true, PULL_NONE, 2);
+	sleep_ms(5);
+#else
 	ldo_on("ldob16", 3000);         /* avdd */
+#endif
 }
 
 /* ---- clocks (GCC) -------------------------------------------------------------------------------- */
@@ -1409,33 +1432,17 @@ bring_up(void)
 		bitbang_half_ticks = 1;
 	}
 
-	say("HAOTIAN-DBG: bring_up entered
-");
 	show_state("as found");
-	say("HAOTIAN-DBG: as-found done
-");
 	gpio_output(PIN_RESET, false, PULL_NONE, 2);
-	say("HAOTIAN-DBG: reset pin %d done
-", PIN_RESET);
 	gpio_configure(PIN_INT, 0, PULL_NONE, 2, false);
-	say("HAOTIAN-DBG: int pin %d done
-", PIN_INT);
-	say("HAOTIAN-DBG: supplies_on begin
-");
 	supplies_on();
-	say("HAOTIAN-DBG: supplies_on done
-");
 	sleep_ms(50);                   /* synaptics,power-delay-ms */
 
-	say("HAOTIAN-DBG: clocks_on next
-");
 	if (!clocks_on()) {
 		show_state("no clocks");
 		say("driving the pins by hand\n");
 		spi_transfer = bitbang_transfer;
 		bitbang_init();
-		say("HAOTIAN-DBG: bitbang_init done, probing
-");
 		return tcm_probe();
 	}
 	say("serial engine: firmware %#x, interface %#x, parameters %#x, source clock %u Hz (select %u)\n",
@@ -1478,9 +1485,9 @@ careful_look(void)
 		vm_offset_t *base;
 		uint32_t offset;
 	} steps[] = {
-		{ "TLMM gpio40 cfg", &tlmm, 0x1000 * PIN_MISO },
-		{ "TLMM gpio161 cfg", &tlmm, 0x1000 * PIN_RESET },
-		{ "TLMM gpio162 io", &tlmm, 0x1000 * PIN_INT + 4 },
+		{ "TLMM MISO cfg", &tlmm, 0x1000 * PIN_MISO },
+		{ "TLMM reset cfg", &tlmm, 0x1000 * PIN_RESET },
+		{ "TLMM interrupt io", &tlmm, 0x1000 * PIN_INT + 4 },
 		{ "GCC vote 0x52008", &gcc, 0x52008 },
 		{ "GCC m_ahb 0x23140", &gcc, 0x23140 },
 		{ "GCC s2 cbcr 0x1827c", &gcc, 0x1827c },
