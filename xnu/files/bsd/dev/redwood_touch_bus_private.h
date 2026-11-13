@@ -38,6 +38,7 @@ sleep_ms(uint32_t ms)
  */
 
 static int board_annibale;
+static int board_socrates;
 static uint32_t touch_steps = 5;  /* touch_hv_steps=1..5: database, GPIO, supplies, clocks, panel. */
 
 #define NO_STRAP                1000u     /* a GPIO number no phone has, so that a read of a strap reads none */
@@ -220,30 +221,38 @@ rpmh_write(const uint32_t *address, const uint32_t *data, unsigned count)
 /* The chip's I/O supply, by its name in this phone's command database: redwood takes 1.8 V from
  * LDO2 of the PM8350C ("ldoc2"), annibale from L12B of its PMIC ("ldob12", the goodix vdd-supply). */
 static const char *supply_name = "ldoc2";
+static const char *avdd_supply_name;      /* socrates: AVDD is an LDO, not a GPIO */
+static uint32_t avdd_mv;
 
 static bool
-io_supply_on(void)
+ldo_on(const char *name, uint32_t millivolts)
 {
-	uint32_t base = rpmh_address(supply_name);
+	uint32_t base = rpmh_address(name);
 	uint32_t address[3] = { base + VRM_VOLTAGE, base + VRM_ENABLE, base + VRM_MODE };
-	uint32_t data[3] = { 1800, 1, VRM_MODE_LDO_HPM };
+	uint32_t data[3] = { millivolts, 1, VRM_MODE_LDO_HPM };
 
 	/* addresses of regulators ("VRM") have 4 in bits 19:16; a newer phone may encode them differently,
 	 * so that this is only worth complaining about, not refusing over */
 	if (base == 0) {
-		printf("goodix: RPMh: no regulator \"%s\"\n", supply_name);
+		printf("goodix: RPMh: no regulator \"%s\"\n", name);
 		return false;
 	}
 	if ((base >> 16 & 0xf) != 4) {
-		printf("goodix: RPMh: \"%s\" address %#x is not tagged as a regulator, trying it anyway\n", supply_name, base);
+		printf("goodix: RPMh: \"%s\" address %#x is not tagged as a regulator, trying it anyway\n", name, base);
 	}
-	printf("goodix: RPMh: %s is at %#x; slot status %#x, control %#x, irq enable %#x status %#x\n", supply_name, base,
+	printf("goodix: RPMh: %s is at %#x; slot status %#x, control %#x, irq enable %#x status %#x\n", name, base,
 	    rd(TCS(TCS_STATUS)), rd(TCS(TCS_CONTROL)), rd(TCS(TCS_IRQ_ENABLE)), rd(TCS(TCS_IRQ_STATUS)));
 	if (!rpmh_write(address, data, 3)) {
 		return false;
 	}
-	printf("goodix: I/O supply on (1.8 V)\n");
+	printf("goodix: %s on at %u mV\n", name, millivolts);
 	return true;
+}
+
+static bool
+io_supply_on(void)
+{
+	return ldo_on(supply_name, 1800);
 }
 
 /* ---- clocks (GCC) -------------------------------------------------------------------------------- */
@@ -328,6 +337,10 @@ static bool
 clocks_on(void)
 {
 	wr(GCC_VOTE, rd(GCC_VOTE) | vote_qup_bus);
+	if (board_socrates) {
+		/* socrates: the serial engine clock is not needed for the hand-driven bus; leave GCC alone */
+		return false;
+	}
 	if (board_annibale) {
 		return clocks_on_annibale();
 	}

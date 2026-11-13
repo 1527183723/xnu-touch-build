@@ -240,7 +240,8 @@ goodix_command(uint8_t command, uint16_t data, unsigned data_bytes)
 static bool
 goodix_coordinate_mode(void)
 {
-	return !board_annibale || (goodix_command(0x90, 0x0002, 2) && goodix_command(0x91, 0x01, 1));
+	return !(board_annibale || board_socrates) ||
+	    (goodix_command(0x90, 0x0002, 2) && goodix_command(0x91, 0x01, 1));
 }
 
 /* What has been seen so far: said once a minute, so that the end of the log always tells. */
@@ -431,7 +432,8 @@ show_state(const char *when)
 	    " reset %#x/%u, int %#x/%u, avdd %#x/%u, straps %u %u\n", when, rd(GCC_VOTE), rd(GCC_QUP1_M_AHB_CBCR),
 	    rd(GCC_QUP1_S_AHB_CBCR), rd(board_annibale ? A_SE2_HALT : GCC_QUP1_SE5_CBCR), rd(board_annibale ? A_QSPI_REF_CFG : GCC_QUP1_SE5_CFG), board_annibale ? 0 : rd(GCC_QUP1_SE5_DFSR), rd(GPIO_CFG(PIN_CS)),
 	    rd(GPIO_CFG(PIN_CLK)), rd(GPIO_CFG(PIN_MOSI)), rd(GPIO_CFG(PIN_MISO)), rd(GPIO_CFG(PIN_RESET)),
-	    rd(GPIO_IO(PIN_RESET)), rd(GPIO_CFG(PIN_INT)), rd(GPIO_IO(PIN_INT)), rd(GPIO_CFG(PIN_AVDD)), rd(GPIO_IO(PIN_AVDD)),
+	    rd(GPIO_IO(PIN_RESET)), rd(GPIO_CFG(PIN_INT)), rd(GPIO_IO(PIN_INT)),
+	    pin_avdd == NO_STRAP ? 0 : rd(GPIO_CFG(PIN_AVDD)), pin_avdd == NO_STRAP ? 0 : rd(GPIO_IO(PIN_AVDD)),
 	    pin_ft_id == NO_STRAP ? 0 : gpio_get(PIN_FOCALTECH_ID), pin_gx_id == NO_STRAP ? 0 : gpio_get(PIN_GOODIX_ID));
 }
 
@@ -443,7 +445,11 @@ power_on(void)
 	gpio_configure(PIN_INT, 0, PULL_UP, 8, false);
 	io_supply_on();
 	sleep_ms(3);
-	gpio_output(PIN_AVDD, true, PULL_NONE, 2);
+	if (avdd_supply_name) {
+		ldo_on(avdd_supply_name, avdd_mv);      /* socrates: AVDD is L14B, not a GPIO switch */
+	} else {
+		gpio_output(PIN_AVDD, true, PULL_NONE, 2);
+	}
 	sleep_ms(15);
 }
 
@@ -527,12 +533,26 @@ micros_now(void)
 }
 
 /* Which phone this is, from the boot-arg's value: 1 is redwood, the shape of every constant
- * above; 2 is annibale, whose every number comes from its own device tree or mainline gcc-sm8750.c. */
+ * above; 2 is annibale, whose every number comes from its own device tree; 3 is socrates
+ * (REDMI K60 Pro), whose numbers come from socrates-port/out/socrates-real.dtb. */
 static void
 board_setup(uint32_t which)
 {
-	vote_qup_bus = 1u << 18 | 1u << 19 | 1u << 20 | 1u << 21;   /* both phones: core 2x, core, m_ahb, s_ahb */
-	if (which == 2) {
+	vote_qup_bus = 1u << 18 | 1u << 19 | 1u << 20 | 1u << 21;   /* all phones: core 2x, core, m_ahb, s_ahb */
+	if (which == 3) {
+		board_socrates = 1;
+		tlmm_phys = 0x0f100000UL;  tlmm_size = 0x100000UL;
+		se_phys = 0x00a90000UL;                             /* QUP1_SE4, the goodix m11 SPI */
+		rsc_phys = 0x17a20000UL;                            /* apps_rsc drv-2 on SM8550 */
+		cmd_db_phys = 0x81c60000UL;  cmd_db_size = 0x20000UL;
+		supply_name = "ldob12";                             /* L12B: iovdd 1.8 V */
+		avdd_supply_name = "ldob14";  avdd_mv = 3200;       /* L14B: avdd 3.2 V */
+		pin_miso = 44;  pin_mosi = 45;  pin_clk = 46;  pin_cs = 47;   /* qup1_se4_l0..l3 */
+		pin_int = 25;  pin_reset = 24;  pin_avdd = NO_STRAP;
+		pin_ft_id = NO_STRAP;  pin_gx_id = NO_STRAP;        /* xiaomi,m11-spi is a Goodix */
+		vote_se = 0;
+		max_x = 14400;  max_y = 32000;                      /* goodix,panel-max-x/y of socrates */
+	} else if (which == 2) {
 		board_annibale = 1;
 		tlmm_phys = 0x0f100000UL;  tlmm_size = 0x102000UL;   /* vendor TLMM base + 0x100000, as in sm8750.dtsi */
 		se_phys = 0x00a88000UL;                             /* serial engine 6: "qup1_se2", the touch chip's SPI */
@@ -614,7 +634,7 @@ goodix_thread(__unused void *parameter, __unused wait_result_t result)
 		thread_terminate(current_thread());
 		return;
 	}
-	if (board_annibale) {
+	if (board_annibale || board_socrates) {
 		int_latch_on();
 	}
 	printf("goodix: %s touch screen ready; the interrupt line is looked at every %u us\n", chip_name(), poll_us);
