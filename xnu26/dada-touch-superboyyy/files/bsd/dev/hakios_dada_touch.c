@@ -1409,17 +1409,33 @@ bring_up(void)
 		bitbang_half_ticks = 1;
 	}
 
+	say("HAOTIAN-DBG: bring_up entered
+");
 	show_state("as found");
+	say("HAOTIAN-DBG: as-found done
+");
 	gpio_output(PIN_RESET, false, PULL_NONE, 2);
+	say("HAOTIAN-DBG: reset pin %d done
+", PIN_RESET);
 	gpio_configure(PIN_INT, 0, PULL_NONE, 2, false);
+	say("HAOTIAN-DBG: int pin %d done
+", PIN_INT);
+	say("HAOTIAN-DBG: supplies_on begin
+");
 	supplies_on();
+	say("HAOTIAN-DBG: supplies_on done
+");
 	sleep_ms(50);                   /* synaptics,power-delay-ms */
 
+	say("HAOTIAN-DBG: clocks_on next
+");
 	if (!clocks_on()) {
 		show_state("no clocks");
 		say("driving the pins by hand\n");
 		spi_transfer = bitbang_transfer;
 		bitbang_init();
+		say("HAOTIAN-DBG: bitbang_init done, probing
+");
 		return tcm_probe();
 	}
 	say("serial engine: firmware %#x, interface %#x, parameters %#x, source clock %u Hz (select %u)\n",
